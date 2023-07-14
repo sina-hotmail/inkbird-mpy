@@ -43,7 +43,7 @@ while True:
             # Connected peripheral has disconnected.
             conn_handle, addr_type, addr = data
             global conn_state
-            conn_state = -1
+            conn_state = -2
         elif event == _IRQ_GATTC_READ_RESULT:
             # A gattc_read() has completed.
             conn_handle, value_handle, char_data = data
