@@ -31,14 +31,19 @@ while True:
 
     # setting IRQ
     def bt_irq(event, data):
+        print("BLE event:" ,event)
         if event == _IRQ_PERIPHERAL_CONNECT:
             # A successful gap_connect().
             conn_handle, addr_type, addr = data
+            global conn_state
+            conn_state = 0
             global handle
             handle=conn_handle
         elif event == _IRQ_PERIPHERAL_DISCONNECT:
             # Connected peripheral has disconnected.
             conn_handle, addr_type, addr = data
+            global conn_state
+            conn_state = -1
         elif event == _IRQ_GATTC_READ_RESULT:
             # A gattc_read() has completed.
             conn_handle, value_handle, char_data = data
@@ -61,11 +66,12 @@ while True:
     ##  2. BLE connect
     addr_type=0 
 
-    handle=-1 
-    ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
+    conn_state=-1 
     ## wait connect
-    while(handle==-1):
-        utime.sleep_ms(2000)
+    while( conn_state == -1 ):
+        print("BLE connecting ..")
+        ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
+        utime.sleep_ms(1000)
 
     ### 3. BLE read ( GATT Client ) 
     # INKBIRD IBS-TH1PLUS =　0x2d
