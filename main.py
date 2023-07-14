@@ -66,11 +66,14 @@ while True:
     ##  2. BLE connect
     addr_type=0 
 
-    conn_state=-1 
-    ## wait connect
-    while( conn_state == -1 ):
+    # conn_state  0:connected , -1:connecting  , -2:disconnected
+    conn_state=-1
+    ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
+    while( conn_state != 0 ):
         print("BLE connecting ..")
-        ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
+        if( conn_state == -2):
+            conn_state =-1
+            ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
         utime.sleep_ms(1000)
 
     ### 3. BLE read ( GATT Client ) 
