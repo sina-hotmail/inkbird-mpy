@@ -65,76 +65,79 @@ while True:
 
     ##  2. BLE connect
     addr_type=0 
-
+    conn_time = 30
     # conn_state  0:connected , -1:connecting  , -2:disconnected
     conn_state=-1
     ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
     while( conn_state != 0 ):
-        print("BLE connecting ..")
+        print("BLE connecting ..",conn_time)
         if( conn_state == -2):
             conn_state =-1
             ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
+        
+        conn_time = conn_time -1
+        if(conn_time < 0):
+            break
         utime.sleep_ms(1000)
 
-    ### 3. BLE read ( GATT Client ) 
-    # INKBIRD IBS-TH1PLUS =　0x2d
-    value_handle=0x2d
 
-    rstatus=-1
-    ble.gattc_read(handle,value_handle)
-    ### wait read 
-    while(rstatus!=0):
-        utime.sleep_ms(2000)
+    if( conn_state == 0):
 
-    ### output
-    print(temp/100 , humid/100)
+        ### 3. BLE read ( GATT Client ) 
+        rstatus=-1
+        ble.gattc_read(handle,  0x2d )  # INKBIRD IBS-TH1PLUS is　0x2d
+        ### wait read 
+        while(rstatus!=0):
+            utime.sleep_ms(2000)
+        
+        ### output
+        print(temp/100 , humid/100)
 
+        ## 4.BLE disconnect 
+        ble.gap_disconnect(handle)
 
-    ## 4.BLE disconnect 
-    ble.gap_disconnect(handle)
+        # 5. BLE OFF
+        ble.active(False)
 
-    # 5. BLE OFF
-    ble.active(False)
+        ###################################
+        # 6.WLAN connect
 
-    ###################################
-    # 6.WLAN connect
+        def do_connect():
+            import network
+            wlan = network.WLAN(network.STA_IF)
+            wlan.active(True)
+            if not wlan.isconnected():
+                print('connecting to network..')
+                wlan.connect( WLAN_SSID, WLAN_PASSWD)
+                while not wlan.isconnected():
+                    pass
+            print('network config:', wlan.ifconfig())
 
-    def do_connect():
-        import network
-        wlan = network.WLAN(network.STA_IF)
-        wlan.active(True)
-        if not wlan.isconnected():
-            print('connecting to network..')
-            wlan.connect( WLAN_SSID, WLAN_PASSWD)
-            while not wlan.isconnected():
-                pass
-        print('network config:', wlan.ifconfig())
-
-    do_connect()
+        do_connect()
 
  
-    # 7. POST data
-    import urequests
-    import ujson
+        # 7. POST data
+        import urequests
+        import ujson
 
-    # upload to the spreadsheet
-    data = {
-        'DeviceName': DEVICE_NAME,
-        'Date_Master': '',
-        'Date': '',
-        'SensorType': '' ,
-        'Temperature': str(temp/100),
-        'Humidity': str(humid/100),
-        'Light': '',
-        'UV': '',
-        'Pressure': '',
-        'Noise': '',
-        'BatteryVoltage': ''
-     }
+        # upload to the spreadsheet
+        data = {
+            'DeviceName': DEVICE_NAME,
+            'Date_Master': '',
+            'Date': '',
+            'SensorType': '' ,
+            'Temperature': str(temp/100),
+            'Humidity': str(humid/100),
+            'Light': '',
+            'UV': '',
+            'Pressure': '',
+            'Noise': '',
+            'BatteryVoltage': ''
+        }
 
-    response = urequests.post( WEB_APP_URL, data=ujson.dumps(data))
+        response = urequests.post( WEB_APP_URL, data=ujson.dumps(data))
 
-    response.close()
+        response.close()
 
     # 8.Sleep 
     sleep_time= 30*60      #30 min
