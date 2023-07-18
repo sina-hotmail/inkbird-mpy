@@ -102,10 +102,11 @@ while True:
         ###################################
         # 6.WLAN connect
 
+        import network
+        wlan = network.WLAN(network.STA_IF)
+        wlan.active(True)
+
         def do_connect():
-            import network
-            wlan = network.WLAN(network.STA_IF)
-            wlan.active(True)
             if not wlan.isconnected():
                 print('connecting to network..')
                 wlan.connect( WLAN_SSID, WLAN_PASSWD)
@@ -138,6 +139,11 @@ while True:
         response = urequests.post( WEB_APP_URL, data=ujson.dumps(data))
 
         response.close()
+    
+        #  WLAN disconnect
+        wlan.disconnect()
+
+        wlan.active(False)
 
     # 8.Sleep 
     sleep_time= 30*60      #30 min
