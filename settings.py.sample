@@ -1,0 +1,6 @@
+# config
+PERIPHERAL_MAC_ADDRESS=b'\xFF\xFF\xFF\xFF\xFF\xFF'
+WEB_APP_URL='https://script.google.com/macros/s/******/exec'
+DEVICE_NAME='******'
+WLAN_SSID='******'
+WLAN_PASSWD='******'
