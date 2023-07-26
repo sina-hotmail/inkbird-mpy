@@ -1,9 +1,12 @@
 # config
-PERIPHERAL_MAC_ADDRESS=b'\xFF\xFF\xFF\xFF\xFF\xFF'
-WEB_APP_URL='https://script.google.com/macros/s/******/exec'
-DEVICE_NAME='******'
-WLAN_SSID='******'
-WLAN_PASSWD='******'
+import settings
+PERIPHERAL_MAC_ADDRESS=settings.PERIPHERAL_MAC_ADDRESS
+WEB_APP_URL=settings.WEB_APP_URL
+DEVICE_NAME=settings.DEVICE_NAME
+WLAN_SSID=settings.WLAN_SSID
+WLAN_PASSWD=settings.WLAN_PASSWD
+
+
 
 #  print micropython  version 
 import os
