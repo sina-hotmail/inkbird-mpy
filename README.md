@@ -1,4 +1,4 @@
-# inkbird-mpy
+# inkbird-uPy
 
 Inkbird IBS-TH1 PLUSの値をESP-WROOM-32でGoogleスプレッドシートへ記録するmicropythonです。
 
