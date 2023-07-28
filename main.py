@@ -99,9 +99,78 @@ while True:
         ## 4.BLE disconnect 
         ble.gap_disconnect(handle)
 
-        # 5. BLE OFF
-        ble.active(False)
+    # 5. BLE OFF
+    ble.active(False)
 
+    ##########
+    # 1 BLE ON
+    ble.active(True)
+
+    ##  irq seup for 0x03
+    def bt_irq_x03(event, data):
+        print("BLE event:" ,event)
+        if event == _IRQ_PERIPHERAL_CONNECT:
+            # A successful gap_connect().
+            conn_handle, addr_type, addr = data
+            global conn_state
+            conn_state = 0
+            global handle
+            handle=conn_handle
+        elif event == _IRQ_PERIPHERAL_DISCONNECT:
+            # Connected peripheral has disconnected.
+            conn_handle, addr_type, addr = data
+            global conn_state
+            conn_state = -2
+        elif event == _IRQ_GATTC_READ_RESULT:
+            # A gattc_read() has completed.
+            conn_handle, value_handle, char_data = data
+            global batt
+            (batt,) = ustruct.unpack('B', char_data)
+        elif event == _IRQ_GATTC_READ_DONE:
+            # A gattc_read() has completed.
+            # Note: Status will be zero on success, implementation-specific value otherwise.
+            conn_handle, value_handle, status = data
+            global rstatus2
+            rstatus2=status
+
+    ble.irq(bt_irq_x03)
+
+
+    ##  2. BLE connect
+    addr_type=0 
+    conn_time = 30
+    # conn_state  0:connected , -1:connecting  , -2:disconnected
+    conn_state=-1
+    ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
+    while( conn_state != 0 ):
+        print("BLE connecting ..",conn_time)
+        if( conn_state == -2):
+            conn_state =-1
+            ble.gap_connect(addr_type, PERIPHERAL_MAC_ADDRESS)
+        
+        conn_time = conn_time -1
+        if(conn_time < 0):
+            break
+        utime.sleep_ms(1000)
+
+    if( conn_state == 0):
+        ### 3. BLE read ( GATT Client ) 
+        rstatus2=-1
+        ble.gattc_read(handle,  0x03 )  # INKBIRD IBS-TH1PLUS battery
+        ### wait read 
+        while(rstatus2!=0):
+            utime.sleep_ms(1000)
+
+        print( batt )
+
+        ## 4.BLE disconnect 
+        ble.gap_disconnect(handle)
+
+    # 5. BLE OFF
+    ble.active(False)
+
+
+    if( (rstatus==0) and (rstatus2==0) ): 
         ###################################
         # 6.WLAN connect
 
@@ -136,7 +205,7 @@ while True:
             'UV': '',
             'Pressure': '',
             'Noise': '',
-            'BatteryVoltage': ''
+            'BatteryVoltage': str(batt)
         }
 
         response = urequests.post( WEB_APP_URL, data=ujson.dumps(data))
