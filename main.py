@@ -195,6 +195,7 @@ while True:
         ntptime.settime()
         (year, month, day, weekday, hours, minutes, seconds, subseconds)=rtc.datetime()
         strDate = str(year)+'-'+str(month) + '-' + str(day) + ' ' + str(hours) + ':' +str(minutes) + ':' +str(seconds)
+        strMDate = str(year)+'-'+str(month) + '-' + str(day) + ' ' + str(hours) + ':' +str(minutes) + ':00'
  
         # 7. POST data
         import urequests
@@ -203,7 +204,7 @@ while True:
         # upload to the spreadsheet
         data = {
             'DeviceName': DEVICE_NAME,
-            'Date_Master': strDate ,
+            'Date_Master': strMDate ,
             'Date': strDate,
             'SensorType': '' ,
             'Temperature': str(temp/100),
