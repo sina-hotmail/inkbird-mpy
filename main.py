@@ -97,7 +97,10 @@ while True:
         print(temp/100 , humid/100)
 
         ## 4.BLE disconnect 
-        ble.gap_disconnect(handle)
+        while( conn_state != -2 ):
+            print("BLE disconnecting ..")
+            ble.gap_disconnect(handle)
+            utime.sleep(1)
 
     # 5. BLE OFF
     ble.active(False)
@@ -164,7 +167,10 @@ while True:
         print( batt )
 
         ## 4.BLE disconnect 
-        ble.gap_disconnect(handle)
+        while( conn_state != -2 ):
+            print("BLE disconnecting ..")
+            ble.gap_disconnect(handle)
+            utime.sleep(1)
 
     # 5. BLE OFF
     ble.active(False)
