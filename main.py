@@ -27,7 +27,7 @@ _IRQ_GATTC_READ_DONE = (16)
 _IRQ_CONNECTION_UPDATE = (27)
 
 
-while True:
+try:
     ## 1.BLE ON
     ble=ubluetooth.BLE()
     ble.active(True)
@@ -90,14 +90,14 @@ while True:
         rstatus=-1
         ble.gattc_read(handle,  0x2d )  # INKBIRD IBS-TH1PLUS is　0x2d
         ### wait read 
-        while(rstatus!=0):
-            utime.sleep_ms(2000)
+        utime.sleep_ms(2000)
         
         ### output
         print(temp/100 , humid/100)
 
         ## 4.BLE disconnect 
         ble.gap_disconnect(handle)
+        utime.sleep_ms(1000) 
 
     # 5. BLE OFF
     ble.active(False)
@@ -158,13 +158,13 @@ while True:
         rstatus2=-1
         ble.gattc_read(handle,  0x03 )  # INKBIRD IBS-TH1PLUS battery
         ### wait read 
-        while(rstatus2!=0):
-            utime.sleep_ms(1000)
+        utime.sleep_ms(2000)
 
         print( batt )
 
         ## 4.BLE disconnect 
         ble.gap_disconnect(handle)
+        utime.sleep_ms(1000)  
 
     # 5. BLE OFF
     ble.active(False)
@@ -196,7 +196,9 @@ while True:
         (year, month, day, weekday, hours, minutes, seconds, subseconds)=rtc.datetime()
         strDate = str(year)+'-'+str(month) + '-' + str(day) + ' ' + str(hours) + ':' +str(minutes) + ':' +str(seconds)
         strMDate = str(year)+'-'+str(month) + '-' + str(day) + ' ' + str(hours) + ':' +str(minutes) + ':00'
- 
+
+        print( strDate )
+
         # 7. POST data
         import urequests
         import ujson
@@ -231,3 +233,27 @@ while True:
         print(sleep_time)
         sleep_time=sleep_time-1
         utime.sleep(1)  # 1sec 
+
+
+    # 9. Reset
+    import machine
+    machine.soft_reset()
+
+except:
+    import machine
+#  for debug
+    print( "reset cause:" , machine.reset_cause() )
+#   1 = machine.PWRON_RESET 
+#   2 = machine.HARD_RESET 
+#   3 = machine.WDT_RESET 
+#   4 = machine.DEEPSLEEP_RESET 
+#   5 = machine.SOFT_RESET 
+
+    wait_time = 30  # 30sec
+    while(wait_time > 0):
+        print(wait_time)
+        wait_time=wait_time-1
+        utime.sleep(1)
+
+    machine.reset()
+
